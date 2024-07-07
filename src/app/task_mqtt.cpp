@@ -43,7 +43,6 @@ void task_mqtt_handler(stk_msg_t* msg) {
         mqtt_client.setServer(mqtt_info.mqtt_broker, mqtt_info.port);
         mqtt_client.setCallback(mqtt_callback);
         mqtt_info.mqtt_initialized = MQTT_INITIALIZED;
-        timer_set(TASK_MQTT_ID, ESP_MQTT_SEND_MSG, 60000, TIMER_PERIODIC);
         break;
         
     case ESP_MQTT_RECONNECT:
@@ -89,11 +88,9 @@ void mqtt_reconnect() {
     APP_DBG("[TASK_MQTT] Attempting MQTT connection...\n");
     if (mqtt_client.connect(mqtt_info.device_id, mqtt_info.mqtt_access_token, "")) {
         APP_DBG("[TASK_MQTT] Connected to Thingsboard MQTT Broker!\n");
-        timer_set(TASK_MQTT_ID, ESP_MQTT_SEND_MSG, 60000, TIMER_PERIODIC);
         mqtt_client.subscribe("v1/devices/me/attributes/response/+");
     } 
     else {
-        timer_remove(TASK_MQTT_ID, ESP_MQTT_SEND_MSG);
         APP_DBG("[TASK_MQTT] Failed connection to MQTT Broker, err = ");
         APP_PRINTLN(mqtt_client.state());
         APP_DBG("[TASK_MQTT] Try again in 5 seconds");

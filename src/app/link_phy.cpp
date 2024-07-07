@@ -74,13 +74,17 @@ void link_phy_handler(stk_msg_t* msg) {
     case LINK_PHY_PARSER_DATA:
         APP_DBG("[LINK_PHY] LINK_PHY_PARSER_DATA\n");
         if (sizeof(link_phy_buffer_receive) >= 2 + sizeof(data_parser_t)) {
-            get_data = (data_parser_t*)(&link_phy_buffer_receive[2]);
 
+            get_data = (data_parser_t*)(&link_phy_buffer_receive[2]);
+            
+            /* parser msg */
             data_for_send_msg_mqtt.voltage = get_data->voltage;
             data_for_send_msg_mqtt.current = get_data->current;
             data_for_send_msg_mqtt.speed_level = get_data->speed_level;
             data_for_send_msg_mqtt.weight = get_data->weight;
- 
+            
+            /* send msg to server */
+            task_post_pure_msg(TASK_MQTT_ID, ESP_MQTT_SEND_MSG);
             APP_PRINT("Voltage: ");
             APP_PRINTLN(get_data->voltage);
             APP_PRINT("Current: ");
